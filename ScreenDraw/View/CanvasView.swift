@@ -4,7 +4,7 @@ class CanvasView: NSView {
     private var currentPath = NSBezierPath()
     private var paths: [(path: NSBezierPath, color: NSColor, timestamp: Date)] = []
     private var drawingController: DrawingController
-    var lineWidth: CGFloat = 4.0
+    private var lineWidth: CGFloat = 4.0
 
     init(frame frameRect: NSRect, drawingController d: DrawingController) {
         drawingController = d
@@ -46,13 +46,16 @@ class CanvasView: NSView {
     }
     
     override func rightMouseDown(with event: NSEvent) {
-        if drawingController.isDrawing == true {
-            drawingController.isDrawing = false
-            currentPath.removeAllPoints()
-            needsDisplay = true
-            
-            AppController.shared.ignoreMouseEvents()
+        
+        if !drawingController.isDrawing {
+            return
         }
+        
+        drawingController.isDrawing = false
+        currentPath.removeAllPoints()
+        needsDisplay = true
+        
+        AppController.shared.ignoreMouseEvents()
     }
     
     func removeLast() {

@@ -38,7 +38,6 @@ struct ToolbarView: View {
                 }
             }
 
-            // Footer text shown only when drawing mode is active
             if drawingController.isDrawing {
                 Text("Draw mode ON - right-click to exit")
                     .font(.caption)

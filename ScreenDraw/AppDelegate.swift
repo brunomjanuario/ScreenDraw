@@ -87,7 +87,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func removeLast() {
         
         let lastCanvas = canvasList.max(by: { $0.getLastDrawTimestamp() < $1.getLastDrawTimestamp() } )
-        
         lastCanvas?.removeLast()
     }
 }
