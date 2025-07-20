@@ -2,7 +2,7 @@ import Cocoa
 
 class CanvasView: NSView {
     private var currentPath = NSBezierPath()
-    private var paths: [(path: NSBezierPath, color: NSColor)] = []
+    private var paths: [(path: NSBezierPath, color: NSColor, timestamp: Date)] = []
     private var drawingController: DrawingController
     var lineWidth: CGFloat = 4.0
 
@@ -31,12 +31,12 @@ class CanvasView: NSView {
     }
 
     override func mouseUp(with event: NSEvent) {
-        paths.append((currentPath.copy() as! NSBezierPath, drawingController.strokeColor))
+        paths.append((currentPath.copy() as! NSBezierPath, drawingController.strokeColor, Date()))
         currentPath.removeAllPoints()
     }
 
     override func draw(_ dirtyRect: NSRect) {
-        for (path, color) in paths {
+        for (path, color, date) in paths {
             color.setStroke()
             path.stroke()
         }
@@ -67,5 +67,10 @@ class CanvasView: NSView {
         paths.removeAll()
         currentPath.removeAllPoints()
         needsDisplay = true
+    }
+    
+    func getLastDrawTimestamp() -> Date {
+        
+        return paths.last?.timestamp ?? Date.distantPast
     }
 }

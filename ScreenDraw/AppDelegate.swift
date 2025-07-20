@@ -45,9 +45,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let visibleX = visibleFrame?.maxX ?? 0
         let visibleY = visibleFrame?.maxY ?? 0
 
-        let toolbarWidth: CGFloat = 400
+        let toolbarWidth: CGFloat = 300
         let toolbarHeight: CGFloat = 50
-        let x = visibleX / 2 - 100
+        let x = visibleX / 2 - (toolbarWidth / 2)
         let y = visibleY
 
         let toolbarSize = NSRect(x: x, y: y, width: toolbarWidth, height: toolbarHeight)
@@ -86,10 +86,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func removeLast() {
         
-        for canvas in canvasList {
-            
-            canvas.removeLast()
-        }
+        let lastCanvas = canvasList.max(by: { $0.getLastDrawTimestamp() < $1.getLastDrawTimestamp() } )
+        
+        lastCanvas?.removeLast()
     }
 }
 
