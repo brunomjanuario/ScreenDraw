@@ -4,31 +4,36 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
     var toolbarWindow: NSWindow!
-    var canvas: CanvasView!
-    var screen: NSRect!
+    var drawingController: DrawingController!
+    var canvasList: [CanvasView] = []
     
     func applicationDidFinishLaunching(_ notification: Notification) {
-        screen = NSScreen.main?.frame ?? .zero
-
-        canvas = CanvasView(frame: screen)
-
-        window = NSWindow(
-            contentRect: screen,
-            styleMask: .borderless,
-            backing: .buffered,
-            defer: false
-        )
-
-        window.level = .screenSaver
-        window.isOpaque = false
-        window.backgroundColor = .clear
-        window.hasShadow = false
-        window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
-        window.contentView = canvas
-        window.makeKeyAndOrderFront(nil)
-        window.ignoresMouseEvents = false
         
-        AppController.shared.setMainWindow(window)
+        drawingController = DrawingController()
+        
+        for screen in NSScreen.screens {
+            
+            let canvas = CanvasView(frame: screen.frame, drawingController: drawingController)
+            
+            window = NSWindow(
+                contentRect: screen.frame,
+                styleMask: .borderless,
+                backing: .buffered,
+                defer: false
+            )
+
+            window.level = .screenSaver
+            window.isOpaque = false
+            window.backgroundColor = .clear
+            window.hasShadow = false
+            window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            window.contentView = canvas
+            window.makeKeyAndOrderFront(nil)
+            window.ignoresMouseEvents = true
+            
+            AppController.shared.windows.append(window)
+            canvasList.append(canvas)
+        }
 
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
@@ -46,11 +51,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let y = visibleY
 
         let toolbarSize = NSRect(x: x, y: y, width: toolbarWidth, height: toolbarHeight)
-        let toolbarView = NSHostingView(rootView: ToolbarView(appDelegate: self))
+        let toolbarView = NSHostingView(rootView: ToolbarView(drawingController: drawingController, appDelegate: self))
 
         toolbarWindow = NSWindow(
             contentRect: toolbarSize,
-            styleMask: [.borderless], // ✅ No title bar, no close buttons
+            styleMask: [.borderless], // No title bar, no close buttons
             backing: .buffered,
             defer: false
         )
@@ -58,11 +63,33 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         toolbarWindow?.isOpaque = false
         toolbarWindow?.backgroundColor = .clear
         toolbarWindow?.hasShadow = true
-        toolbarWindow?.level = .floating // ✅ Always on top
-        toolbarWindow?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary] // ✅ Show on all desktops
+        toolbarWindow?.level = .floating // Always on top
+        toolbarWindow?.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary] // Show on all desktops
         toolbarWindow?.contentView = toolbarView
-        toolbarWindow?.isMovableByWindowBackground = true // ✅ Let user drag it
+        toolbarWindow?.isMovableByWindowBackground = true // Let user drag it
         toolbarWindow?.makeKeyAndOrderFront(nil)
+    }
+    
+    func startDrawing(_ color: NSColor = .systemYellow) {
+        drawingController.strokeColor = color
+        drawingController.isDrawing = true
+        AppController.shared.allowMouseEvents()
+    }
+    
+    func clearAll() {
+        
+        for canvas in canvasList {
+            
+            canvas.clearCanvas()
+        }
+    }
+    
+    func removeLast() {
+        
+        for canvas in canvasList {
+            
+            canvas.removeLast()
+        }
     }
 }
 

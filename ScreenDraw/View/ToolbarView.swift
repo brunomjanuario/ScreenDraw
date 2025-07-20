@@ -1,25 +1,49 @@
 import SwiftUI
 
 struct ToolbarView: View {
+    @ObservedObject var drawingController: DrawingController
     weak var appDelegate: AppDelegate?
 
     var body: some View {
-        HStack {
-            Button("Clear All") {
-                appDelegate?.canvas.clearCanvas()
-            }
+        VStack(spacing: 8) {
+            HStack(spacing: 16) {
+                Button(action: {
+                    appDelegate?.startDrawing(.systemYellow)
+                }) {
+                    Circle()
+                        .fill(Color(nsColor: .systemYellow))
+                        .frame(width: 24, height: 24)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                }.buttonStyle(PlainButtonStyle())
+                
+                Button(action: {
+                    appDelegate?.startDrawing(.systemRed)
+                }) {
+                    Circle()
+                        .fill(Color(nsColor: .systemRed))
+                        .frame(width: 24, height: 24)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                }.buttonStyle(PlainButtonStyle())
             
-            Button("Draw") {
+                Button("Clear All") {
+                    appDelegate?.clearAll()
+                }
 
-                appDelegate?.canvas.startDrawing()
+                Button("Back") {
+                    appDelegate?.removeLast()
+                }
+
+                Button("Quit") {
+                    NSApp.terminate(nil)
+                }
             }
 
-            Button("Back") {
-                appDelegate?.canvas.setEraserMode()
-            }
-
-            Button("Quit") {
-                NSApp.terminate(nil)
+            // Footer text shown only when drawing mode is active
+            if drawingController.isDrawing {
+                Text("Draw mode ON - right-click to exit")
+                    .font(.caption)
+                    .foregroundColor(.white)
+                    .padding(.top, 4)
             }
         }
         .padding()

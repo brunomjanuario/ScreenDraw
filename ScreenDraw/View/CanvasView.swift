@@ -3,11 +3,11 @@ import Cocoa
 class CanvasView: NSView {
     private var currentPath = NSBezierPath()
     private var paths: [(path: NSBezierPath, color: NSColor)] = []
-    private var isCurrentlyDrawing = true
-    var strokeColor = NSColor.systemYellow
+    private var drawingController: DrawingController
     var lineWidth: CGFloat = 4.0
 
-    override init(frame frameRect: NSRect) {
+    init(frame frameRect: NSRect, drawingController d: DrawingController) {
+        drawingController = d
         super.init(frame: frameRect)
         wantsLayer = true
         layer?.backgroundColor = NSColor.clear.cgColor
@@ -31,7 +31,7 @@ class CanvasView: NSView {
     }
 
     override func mouseUp(with event: NSEvent) {
-        paths.append((currentPath.copy() as! NSBezierPath, strokeColor))
+        paths.append((currentPath.copy() as! NSBezierPath, drawingController.strokeColor))
         currentPath.removeAllPoints()
     }
 
@@ -41,31 +41,21 @@ class CanvasView: NSView {
             path.stroke()
         }
 
-        strokeColor.setStroke()
+        drawingController.strokeColor.setStroke()
         currentPath.stroke()
     }
     
     override func rightMouseDown(with event: NSEvent) {
-        if isCurrentlyDrawing {
-            isCurrentlyDrawing = false
+        if drawingController.isDrawing == true {
+            drawingController.isDrawing = false
             currentPath.removeAllPoints()
             needsDisplay = true
-            print("Right click: drawing cancelled")
             
             AppController.shared.ignoreMouseEvents()
-        } else {
-            
-            startDrawing()
         }
     }
     
-    func startDrawing(_ color: NSColor = .systemYellow) {
-        strokeColor = color
-        isCurrentlyDrawing = true
-        AppController.shared.allowMouseEvents()
-    }
-    
-    func setEraserMode() {
+    func removeLast() {
         
         if !paths.isEmpty {
             paths.removeLast()

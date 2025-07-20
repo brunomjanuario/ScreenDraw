@@ -3,23 +3,25 @@ import AppKit
 class AppController {
     static let shared = AppController()
 
-    var mainWindow: NSWindow?
-
-    func setMainWindow(_ window: NSWindow) {
-        self.mainWindow = window
-    }
-
+    var windows: [NSWindow] = []
+    
     func ignoreMouseEvents() {
-        mainWindow?.ignoresMouseEvents = true
-        print("✅ Window is now ignoring mouse events")
+        
+        for window in windows {
+            window.ignoresMouseEvents = true
+        }
     }
 
     func allowMouseEvents() {
-        mainWindow?.ignoresMouseEvents = false
-        print("✅ Window is now accepting mouse events")
+        
+        for window in windows {
+            window.ignoresMouseEvents = false
+        }
     }
 
     func closeWindow() {
-        mainWindow?.close()
+        for window in windows {
+            window.close()
+        }
     }
 }
